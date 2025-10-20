@@ -5,6 +5,7 @@ import Template from './Template.jsx';
 
 export default function Main() {
   const [showModal, setShowModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   return (
     <main className='px-40 flex justify-center flex-col items-center gap-1 pt-3'>
       <h1 className='text-3xl text-sky-600 font-semibold'>Spammer</h1>
@@ -25,8 +26,24 @@ export default function Main() {
           <Counter title='Números ingresados:' id='number-counter' />
           <Counter title='Números Aprobados:' id='number-approved' />
         </section>
-
-        <WhatsTemplate setShowModal={setShowModal} />
+        <h2 className='text-sm'>Plantilla de WhatsApp</h2>
+        <WhatsTemplate
+          name={selectedTemplate?.name || ''}
+          title={
+            selectedTemplate?.components?.find(c => c.type === 'HEADER')
+              ?.text || ''
+          }
+          message={
+            selectedTemplate?.components?.find(c => c.type === 'BODY')?.text ||
+            ''
+          }
+          footer={
+            selectedTemplate?.components?.find(c => c.type === 'FOOTER')
+              ?.text || ''
+          }
+          button={selectedTemplate?.category || ''}
+          setShowModal={setShowModal}
+        />
 
         <label for='intervalo' className='h-6 text-sm'>
           Frecuencia de envío de mensajes (Tiempo en segundos)
@@ -45,7 +62,12 @@ export default function Main() {
           </span>
         </p>
 
-        <Template showModal={showModal} setShowModal={setShowModal} />
+        <Template
+          showModal={showModal}
+          setShowModal={setShowModal}
+          setSelectedTemplate={setSelectedTemplate}
+          selectedTemplate={selectedTemplate}
+        />
       </form>
     </main>
   );
