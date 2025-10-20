@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Counter from './Counter.jsx';
 import WhatsTemplate from './WhatsTemplate.jsx';
 import Template from './Template.jsx';
+import AuthorizationDialog from './AuthorizationDialog.jsx';
 
 export default function Main() {
   const [showModal, setShowModal] = useState(false);
@@ -10,6 +11,7 @@ export default function Main() {
   const [textareaValue, setTextareaValue] = useState('');
   const [delay, setDelay] = useState('');
   const [timeToComplete, setTimeToComplete] = useState(0);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   // Función para limpiar y procesar números de teléfono
   const handlePhoneNumbersChange = event => {
@@ -95,13 +97,58 @@ export default function Main() {
     calculateTimeToComplete();
   }, [phoneNumbers, delay]);
 
+  const handleFormSubmit = e => {
+    e.preventDefault();
+
+    // Validaciones básicas
+    if (phoneNumbers.length === 0) {
+      alert('Por favor, ingresa al menos un número de teléfono válido.');
+      return;
+    }
+
+    if (!selectedTemplate) {
+      alert('Por favor, selecciona una plantilla de WhatsApp.');
+      return;
+    }
+
+    if (!delay || parseInt(delay) <= 0) {
+      alert('Por favor, ingresa un tiempo de delay válido.');
+      return;
+    }
+
+    // Abrir el diálogo de autorización
+    setShowAuthDialog(true);
+  };
+
+  const handleAuthorization = async credentials => {
+    // Aquí puedes agregar la lógica de autenticación
+    console.log('Credenciales recibidas:', credentials);
+
+    // Simular proceso de autorización
+    return new Promise(resolve => {
+      setTimeout(() => {
+        console.log('Autorización exitosa, iniciando envío de mensajes...');
+        // Aquí iría la lógica de envío de mensajes
+        resolve();
+      }, 1000);
+    });
+  };
+
+  const handleCloseAuthDialog = () => {
+    setShowAuthDialog(false);
+  };
+
   return (
     <main className='px-40 flex justify-center flex-col items-center gap-1 pt-3'>
       <h1 className='text-3xl text-sky-600 font-semibold'>
         Envia mensajes de Whats App Masivamente
       </h1>
       <small className='text-zinc-500'>Powered by Fadetechs.com</small>
-      <form className='flex flex-col gap-4 w-full' id='spam-form'>
+      <form
+        className='flex flex-col gap-4 w-full'
+        id='spam-form'
+        onSubmit={handleFormSubmit}
+      >
         <label for='phone-numbers' className='h-6 text-sm'>
           Ingresar números de contacto:
         </label>
@@ -172,6 +219,18 @@ export default function Main() {
           Enviar
         </button>
       </form>
+
+      <AuthorizationDialog
+        isOpen={showAuthDialog}
+        onClose={handleCloseAuthDialog}
+        onAuthorize={handleAuthorization}
+        summaryData={{
+          totalNumbers: phoneNumbers.length,
+          approvedNumbers: phoneNumbers.length,
+          frequency: delay,
+          estimatedDuration: timeToComplete,
+        }}
+      />
     </main>
   );
 }
