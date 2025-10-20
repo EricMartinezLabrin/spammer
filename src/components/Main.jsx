@@ -8,6 +8,8 @@ export default function Main() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [phoneNumbers, setPhoneNumbers] = useState([]);
   const [textareaValue, setTextareaValue] = useState('');
+  const [delay, setDelay] = useState('');
+  const [timeToComplete, setTimeToComplete] = useState(0);
 
   // Función para limpiar y procesar números de teléfono
   const handlePhoneNumbersChange = event => {
@@ -42,8 +44,6 @@ export default function Main() {
 
     // Actualizar el textarea con los números limpios
     setTextareaValue(cleanedNumbers.join('\n'));
-
-    console.log('Números procesados:', cleanedNumbers);
   };
 
   // Efecto para limpiar automáticamente después de 1 segundo de inactividad
@@ -56,6 +56,44 @@ export default function Main() {
 
     return () => clearTimeout(timeoutId);
   }, [textareaValue]);
+  const secondsToMinutesOrHours = totalSeconds => {
+    if (isNaN(totalSeconds) || totalSeconds <= 0) return '0 segundos';
+
+    if (totalSeconds < 60) {
+      return `${totalSeconds} segundos`;
+    } else if (totalSeconds < 3600) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return seconds === 0
+        ? `${minutes} minutos`
+        : `${minutes} minutos y ${seconds} segundos`;
+    } else {
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      return minutes === 0
+        ? `${hours} horas`
+        : `${hours} horas y ${minutes} minutos`;
+    }
+  };
+
+  const calculateTimeToComplete = () => {
+    const delayInSeconds = parseInt(delay, 10);
+    if (
+      isNaN(delayInSeconds) ||
+      delayInSeconds <= 0 ||
+      phoneNumbers.length === 0
+    ) {
+      setTimeToComplete('');
+      return;
+    }
+    const totalSeconds = phoneNumbers.length * delayInSeconds;
+    setTimeToComplete(secondsToMinutesOrHours(totalSeconds));
+  };
+
+  // Efecto para recalcular el tiempo estimado cuando cambian los números o el delay
+  useEffect(() => {
+    calculateTimeToComplete();
+  }, [phoneNumbers, delay]);
 
   return (
     <main className='px-40 flex justify-center flex-col items-center gap-1 pt-3'>
@@ -71,7 +109,7 @@ export default function Main() {
           id='phone-numbers'
           className='bg-white rounded-md -mt-3 text-xs focus:ring-2 focus:ring-sky-600 outline-none p-2 shadow-md'
           name='phone-numbers'
-          placeholder='Pega los números de contacto aquí. Ejemplo:&#10;+1234567890&#10;987-654-3210&#10;555 123 4567'
+          placeholder='Pega los números de contacto aquí. Uno bajo el otro, directo desde el excel o fuente original'
           rows='5'
           cols='1'
           value={textareaValue}
@@ -105,17 +143,20 @@ export default function Main() {
         </label>
         <input
           id='intervalo'
-          type='text'
+          type='number'
           className='-mt-2 bg-white rounded-md text-xs focus:ring-2 focus:ring-sky-600 outline-none p-2 shadow-md'
           placeholder='Ingresa el tiempo en segundos'
+          onChange={e => setDelay(e.target.value)}
         />
 
-        <p className='ring-1 ring-sky-600 rounded-md bg-sky-600/25 text-center text-zinc-500 text-sm p-1 shadow-md'>
-          Total tiempo estimado para completar el envio:{' '}
-          <span id='total-time' className='font-semibold'>
-            60 segundos
-          </span>
-        </p>
+        {timeToComplete && timeToComplete !== '' && (
+          <p className='ring-1 ring-sky-600 rounded-md bg-sky-600/25 text-center text-zinc-500 text-sm p-1 shadow-md'>
+            Total tiempo estimado para completar el envio:{' '}
+            <span id='total-time' className='font-semibold'>
+              {timeToComplete}
+            </span>
+          </p>
+        )}
 
         <Template
           showModal={showModal}
