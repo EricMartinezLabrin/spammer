@@ -136,6 +136,12 @@ export default function Main() {
 
   const handleCloseAuthDialog = () => {
     setShowAuthDialog(false);
+    // Limpiar todos los estados del formulario cuando se cierre completamente
+    setPhoneNumbers([]);
+    setTextareaValue('');
+    setDelay('');
+    setTimeToComplete(0);
+    setSelectedTemplate(null);
   };
 
   return (

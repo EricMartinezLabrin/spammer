@@ -22,6 +22,7 @@ export default function AuthorizationDialog({
   const [storedCode, setStoredCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Función para generar código aleatorio de 7 caracteres
   const generateVerificationCode = () => {
@@ -121,15 +122,15 @@ export default function AuthorizationDialog({
     }
   }, [isOpen, codeSent]);
 
-  // Resetear estado cuando se cierra el modal
+  // Resetear estado cuando se cierra el modal (pero no cuando se está mostrando el modal de éxito)
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen && !showSuccessModal) {
       setVerificationCode('');
       setStoredCode('');
       setCodeSent(false);
       setIsLoading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, showSuccessModal]);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -145,14 +146,15 @@ export default function AuthorizationDialog({
 
         if (webhookSent) {
           console.log('Datos enviados exitosamente al servidor');
+          // Mostrar modal de éxito
+          setShowSuccessModal(true);
         } else {
           console.warn(
             'Error al enviar datos al servidor, pero continuando...'
           );
+          await onAuthorize({ verified: true });
+          onClose();
         }
-
-        await onAuthorize({ verified: true });
-        onClose();
       } else {
         alert(
           'Código de verificación incorrecto. Por favor, intenta nuevamente.'
@@ -166,6 +168,18 @@ export default function AuthorizationDialog({
   };
 
   const handleCancel = () => {
+    onClose();
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    // Limpiar todos los estados
+    setVerificationCode('');
+    setStoredCode('');
+    setCodeSent(false);
+    setIsLoading(false);
+    // Notificar autorización exitosa y cerrar modal principal
+    onAuthorize({ verified: true });
     onClose();
   };
 
@@ -281,6 +295,46 @@ export default function AuthorizationDialog({
           </div>
         </form>
       </DialogContent>
+
+      {/* Modal de éxito */}
+      <Dialog open={showSuccessModal} onOpenChange={handleSuccessModalClose}>
+        <DialogContent className='sm:max-w-md bg-white'>
+          <DialogHeader className='text-center'>
+            <div className='mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center'>
+              <svg
+                className='w-8 h-8 text-green-600'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M5 13l4 4L19 7'
+                />
+              </svg>
+            </div>
+            <DialogTitle className='text-xl font-semibold text-gray-900 text-center mb-2'>
+              ¡Spam Iniciado!
+            </DialogTitle>
+            <DialogDescription className='text-base text-gray-600 leading-relaxed'>
+              Tu Spam comenzó a enviarse, recibirás una notificación por
+              WhatsApp cuando el proceso termine. Puedes cerrar esta ventana, no
+              interrumpirá el proceso.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className='flex justify-center pt-4'>
+            <Button
+              onClick={handleSuccessModalClose}
+              className='w-full bg-green-600 hover:bg-green-700 text-white'
+            >
+              Entendido
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
