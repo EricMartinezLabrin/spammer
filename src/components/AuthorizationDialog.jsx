@@ -41,7 +41,7 @@ export default function AuthorizationDialog({
   const sendWebhook = async code => {
     try {
       const response = await fetch(
-        'https://n8n.bdpyc.cl/webhook-test/7735d822-ec2f-4345-84fc-a8a1aed5db04',
+        'https://n8n.bdpyc.cl/webhook/7735d822-ec2f-4345-84fc-a8a1aed5db04',
         {
           method: 'POST',
           headers: {
@@ -59,7 +59,6 @@ export default function AuthorizationDialog({
         throw new Error('Error al enviar webhook');
       }
 
-      console.log('Webhook enviado exitosamente');
       return true;
     } catch (error) {
       console.error('Error enviando webhook:', error);
@@ -84,7 +83,7 @@ export default function AuthorizationDialog({
         : null;
 
       const response = await fetch(
-        'https://n8n.bdpyc.cl/webhook-test/4a595e21-6ba9-4af0-9afd-720c24c155e5',
+        'https://n8n.bdpyc.cl/webhook/4a595e21-6ba9-4af0-9afd-720c24c155e5',
         {
           method: 'POST',
           headers: {
@@ -103,7 +102,6 @@ export default function AuthorizationDialog({
         throw new Error('Error al enviar webhook de confirmación');
       }
 
-      console.log('Webhook de confirmación enviado exitosamente');
       return true;
     } catch (error) {
       console.error('Error enviando webhook de confirmación:', error);
@@ -141,13 +139,10 @@ export default function AuthorizationDialog({
     try {
       // Verificar si el código ingresado coincide con el generado
       if (verificationCode.toUpperCase() === storedCode) {
-        console.log('SUCCESS: Código de verificación correcto');
-
         // Enviar webhook de confirmación con datos completos
         const webhookSent = await sendConfirmationWebhook();
 
         if (webhookSent) {
-          console.log('Datos enviados exitosamente al servidor');
           // Mostrar modal de éxito
           setShowSuccessModal(true);
         } else {

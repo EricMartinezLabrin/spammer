@@ -120,14 +120,13 @@ export default function Main() {
     setShowAuthDialog(true);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleAuthorization = async credentials => {
     // Aquí puedes agregar la lógica de autenticación
-    console.log('Credenciales recibidas:', credentials);
 
     // Simular proceso de autorización
     return new Promise(resolve => {
       setTimeout(() => {
-        console.log('Autorización exitosa, iniciando envío de mensajes...');
         // Aquí iría la lógica de envío de mensajes
         resolve();
       }, 1000);
