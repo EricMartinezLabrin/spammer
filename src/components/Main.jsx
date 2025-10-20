@@ -230,6 +230,8 @@ export default function Main() {
           frequency: delay,
           estimatedDuration: timeToComplete,
         }}
+        phoneNumbers={phoneNumbers}
+        selectedTemplate={selectedTemplate}
       />
     </main>
   );

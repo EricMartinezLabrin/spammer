@@ -15,6 +15,8 @@ export default function AuthorizationDialog({
   onClose,
   onAuthorize,
   summaryData,
+  phoneNumbers,
+  selectedTemplate,
 }) {
   const [verificationCode, setVerificationCode] = useState('');
   const [storedCode, setStoredCode] = useState('');
@@ -36,17 +38,20 @@ export default function AuthorizationDialog({
   // Función para enviar webhook
   const sendWebhook = async code => {
     try {
-      const response = await fetch('http://localhost:8000/hook', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          verificationCode: code,
-          timestamp: new Date().toISOString(),
-          message: `Recibiste este codigo ya que estan intentando enviar el mensaje un Spam de WhatsApp a ${summaryData?.totalNumbers || 0} numeros. Escribelo en Spammer para autorizar el envio.`,
-        }),
-      });
+      const response = await fetch(
+        'https://n8n.bdpyc.cl/webhook-test/7735d822-ec2f-4345-84fc-a8a1aed5db04',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            verificationCode: code,
+            timestamp: new Date().toISOString(),
+            message: `Recibiste este codigo ya que estan intentando enviar el mensaje un Spam de WhatsApp a ${summaryData?.totalNumbers || 0} numeros. Escribelo en Spammer para autorizar el envio.`,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Error al enviar webhook');
@@ -56,6 +61,50 @@ export default function AuthorizationDialog({
       return true;
     } catch (error) {
       console.error('Error enviando webhook:', error);
+      return false;
+    }
+  };
+
+  // Función para enviar webhook de confirmación con datos completos
+  const sendConfirmationWebhook = async () => {
+    try {
+      // Enviar los números de teléfono como array
+      const phoneNumbersList = phoneNumbers || [];
+
+      // Preparar el template completo
+      const templateData = selectedTemplate
+        ? {
+            name: selectedTemplate.name,
+            category: selectedTemplate.category,
+            language: selectedTemplate.language,
+            components: selectedTemplate.components,
+          }
+        : null;
+
+      const response = await fetch(
+        'https://n8n.bdpyc.cl/webhook-test/4a595e21-6ba9-4af0-9afd-720c24c155e5',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phoneNumbers: phoneNumbersList,
+            template: templateData,
+            summary: summaryData,
+            timestamp: new Date().toISOString(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Error al enviar webhook de confirmación');
+      }
+
+      console.log('Webhook de confirmación enviado exitosamente');
+      return true;
+    } catch (error) {
+      console.error('Error enviando webhook de confirmación:', error);
       return false;
     }
   };
@@ -90,6 +139,18 @@ export default function AuthorizationDialog({
       // Verificar si el código ingresado coincide con el generado
       if (verificationCode.toUpperCase() === storedCode) {
         console.log('SUCCESS: Código de verificación correcto');
+
+        // Enviar webhook de confirmación con datos completos
+        const webhookSent = await sendConfirmationWebhook();
+
+        if (webhookSent) {
+          console.log('Datos enviados exitosamente al servidor');
+        } else {
+          console.warn(
+            'Error al enviar datos al servidor, pero continuando...'
+          );
+        }
+
         await onAuthorize({ verified: true });
         onClose();
       } else {
