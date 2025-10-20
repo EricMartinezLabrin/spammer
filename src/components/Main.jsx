@@ -164,6 +164,13 @@ export default function Main() {
           setSelectedTemplate={setSelectedTemplate}
           selectedTemplate={selectedTemplate}
         />
+
+        <button
+          className='bg-sky-600 text-white rounded-md p-2 shadow-md'
+          type='submit'
+        >
+          Enviar
+        </button>
       </form>
     </main>
   );
