@@ -17,6 +17,7 @@ export default function AuthorizationDialog({
   summaryData,
   phoneNumbers,
   selectedTemplate,
+  onClearFormStates,
 }) {
   const [verificationCode, setVerificationCode] = useState('');
   const [storedCode, setStoredCode] = useState('');
@@ -122,15 +123,16 @@ export default function AuthorizationDialog({
     }
   }, [isOpen, codeSent]);
 
-  // Resetear estado cuando se cierra el modal (pero no cuando se está mostrando el modal de éxito)
+  // Resetear estados necesarios cuando se cierre el modal para permitir nuevo webhook
   useEffect(() => {
-    if (!isOpen && !showSuccessModal) {
+    if (!isOpen) {
+      setShowSuccessModal(false);
+      // Resetear codeSent para que envíe el webhook nuevamente al reabrir
+      setCodeSent(false);
       setVerificationCode('');
       setStoredCode('');
-      setCodeSent(false);
-      setIsLoading(false);
     }
-  }, [isOpen, showSuccessModal]);
+  }, [isOpen]);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -150,10 +152,11 @@ export default function AuthorizationDialog({
           setShowSuccessModal(true);
         } else {
           console.warn(
-            'Error al enviar datos al servidor, pero continuando...'
+            'Error al enviar datos al servidor. Los estados no se limpiarán.'
           );
-          await onAuthorize({ verified: true });
-          onClose();
+          alert(
+            'Error al conectar con el servidor. Por favor, intenta nuevamente.'
+          );
         }
       } else {
         alert(
@@ -173,11 +176,13 @@ export default function AuthorizationDialog({
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    // Limpiar todos los estados
+    // Limpiar todos los estados del modal de autorización
     setVerificationCode('');
     setStoredCode('');
     setCodeSent(false);
     setIsLoading(false);
+    // Limpiar estados del formulario principal (incluye frecuencia de envío)
+    onClearFormStates();
     // Notificar autorización exitosa y cerrar modal principal
     onAuthorize({ verified: true });
     onClose();

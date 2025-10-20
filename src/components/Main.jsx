@@ -136,11 +136,14 @@ export default function Main() {
 
   const handleCloseAuthDialog = () => {
     setShowAuthDialog(false);
-    // Limpiar todos los estados del formulario cuando se cierre completamente
+  };
+
+  const clearFormStates = () => {
+    // Limpiar todos los estados del formulario solo cuando el proceso sea exitoso
     setPhoneNumbers([]);
     setTextareaValue('');
     setDelay('');
-    setTimeToComplete(0);
+    setTimeToComplete(''); // Establecer como cadena vacía para que desaparezca
     setSelectedTemplate(null);
   };
 
@@ -197,6 +200,7 @@ export default function Main() {
         <input
           id='intervalo'
           type='number'
+          value={delay}
           className='-mt-2 bg-white rounded-md text-xs focus:ring-2 focus:ring-sky-600 outline-none p-2 shadow-md'
           placeholder='Ingresa el tiempo en segundos'
           onChange={e => setDelay(e.target.value)}
@@ -238,6 +242,7 @@ export default function Main() {
         }}
         phoneNumbers={phoneNumbers}
         selectedTemplate={selectedTemplate}
+        onClearFormStates={clearFormStates}
       />
     </main>
   );
