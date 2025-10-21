@@ -88,7 +88,7 @@ export default function Main() {
       setTimeToComplete('');
       return;
     }
-    const totalSeconds = phoneNumbers.length * delayInSeconds;
+    const totalSeconds = phoneNumbers.length * (delayInSeconds + 10);
     setTimeToComplete(secondsToMinutesOrHours(totalSeconds));
   };
 
