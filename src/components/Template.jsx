@@ -23,7 +23,7 @@ export default function Template({
   const handleAddTemplate = async () => {
     try {
       const response = await fetch(
-        'https://n8n.bdpyc.cl/webhook/aba71eaa-d954-4e53-b7f7-dfd2fe9a10cd'
+        'https://n8n.fadetechs.com/webhook/a327e28f-05bf-4ba4-a222-1a171abde6a5'
       );
       const data = await response.json();
 

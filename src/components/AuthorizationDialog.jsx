@@ -41,7 +41,7 @@ export default function AuthorizationDialog({
   const sendWebhook = async code => {
     try {
       const response = await fetch(
-        'https://n8n.bdpyc.cl/webhook/7735d822-ec2f-4345-84fc-a8a1aed5db04',
+        'https://n8n.fadetechs.com/webhook/b912cf6c-e174-49b9-a0d6-165b65d389e5',
         {
           method: 'POST',
           headers: {
@@ -83,7 +83,7 @@ export default function AuthorizationDialog({
         : null;
 
       const response = await fetch(
-        'https://n8n.bdpyc.cl/webhook/4a595e21-6ba9-4af0-9afd-720c24c155e5',
+        'https://n8n.fadetechs.com/webhook/51a4e173-fffa-49d1-a4d4-2482f3d8751b',
         {
           method: 'POST',
           headers: {
