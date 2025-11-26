@@ -1,4 +1,6 @@
 # Dockerfile para Dokploy (React + Vite + pnpm)
+
+# Dockerfile para Dokploy (React + Vite + pnpm + serve)
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -17,14 +19,10 @@ RUN pnpm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Instala pnpm globalmente
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+# Instala serve globalmente para servir archivos estáticos
+RUN npm install -g serve
 
 COPY --from=builder /app/dist ./dist
-COPY package.json pnpm-lock.yaml ./
-
-# Instala solo las dependencias de producción (si las hubiera)
-RUN pnpm install --prod --frozen-lockfile
 
 EXPOSE 4173
-CMD ["pnpm", "run", "preview", "--", "--port", "4173", "--host"]
+CMD ["serve", "-s", "dist", "-l", "4173"]
