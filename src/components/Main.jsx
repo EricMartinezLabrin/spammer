@@ -141,7 +141,7 @@ export default function Main() {
     setShowAuthDialog(false);
   };
 
-  const handleVariablesConfirm = (variables) => {
+  const handleVariablesConfirm = variables => {
     // Reemplazar variables en la plantilla
     const templateWithVars = {
       ...selectedTemplate,
