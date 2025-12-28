@@ -3,6 +3,8 @@ import Counter from './Counter.jsx';
 import WhatsTemplate from './WhatsTemplate.jsx';
 import Template from './Template.jsx';
 import AuthorizationDialog from './AuthorizationDialog.jsx';
+import TemplateVariablesDialog from './TemplateVariablesDialog.jsx';
+import { replaceTemplateVariables } from '../lib/utils.js';
 
 export default function Main() {
   const [showModal, setShowModal] = useState(false);
@@ -12,6 +14,8 @@ export default function Main() {
   const [delay, setDelay] = useState('');
   const [timeToComplete, setTimeToComplete] = useState(0);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showVariablesDialog, setShowVariablesDialog] = useState(false);
+  const [processedTemplate, setProcessedTemplate] = useState(null);
 
   // Función para limpiar y procesar números de teléfono
   const handlePhoneNumbersChange = event => {
@@ -116,8 +120,8 @@ export default function Main() {
       return;
     }
 
-    // Abrir el diálogo de autorización
-    setShowAuthDialog(true);
+    // Mostrar diálogo de variables si la plantilla las contiene
+    setShowVariablesDialog(true);
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -137,6 +141,23 @@ export default function Main() {
     setShowAuthDialog(false);
   };
 
+  const handleVariablesConfirm = (variables) => {
+    // Reemplazar variables en la plantilla
+    const templateWithVars = {
+      ...selectedTemplate,
+      components: selectedTemplate.components.map(component => ({
+        ...component,
+        text: replaceTemplateVariables(component.text, variables),
+      })),
+    };
+
+    setProcessedTemplate(templateWithVars);
+    setShowVariablesDialog(false);
+
+    // Abrir el diálogo de autorización
+    setShowAuthDialog(true);
+  };
+
   const clearFormStates = () => {
     // Limpiar todos los estados del formulario solo cuando el proceso sea exitoso
     setPhoneNumbers([]);
@@ -144,6 +165,7 @@ export default function Main() {
     setDelay('');
     setTimeToComplete(''); // Establecer como cadena vacía para que desaparezca
     setSelectedTemplate(null);
+    setProcessedTemplate(null);
   };
 
   return (
@@ -240,8 +262,17 @@ export default function Main() {
           estimatedDuration: timeToComplete,
         }}
         phoneNumbers={phoneNumbers}
-        selectedTemplate={selectedTemplate}
+        selectedTemplate={processedTemplate || selectedTemplate}
         onClearFormStates={clearFormStates}
+      />
+
+      <TemplateVariablesDialog
+        isOpen={showVariablesDialog}
+        template={
+          selectedTemplate?.components?.find(c => c.type === 'BODY')?.text || ''
+        }
+        onClose={() => setShowVariablesDialog(false)}
+        onConfirm={handleVariablesConfirm}
       />
     </main>
   );

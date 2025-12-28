@@ -73,7 +73,7 @@ export default function Template({
       }}
     >
       <form>
-        <DialogContent className='w-3/4'>
+        <DialogContent className='w-3/4 flex flex-col max-h-[80vh]'>
           <DialogHeader className='items-center'>
             <DialogTitle>
               <img src='/svg/open.svg' alt='Open' className='w-9' />
@@ -82,38 +82,40 @@ export default function Template({
               Plantillas de Whats App
             </DialogDescription>
           </DialogHeader>
-          {Array.isArray(templates) &&
-            templates.length > 0 &&
-            templates.map((template, index) => {
-              // Extraer componentes de la plantilla
-              const headerComponent = template.components?.find(
-                c => c.type === 'HEADER'
-              );
-              const bodyComponent = template.components?.find(
-                c => c.type === 'BODY'
-              );
-              const footerComponent = template.components?.find(
-                c => c.type === 'FOOTER'
-              );
+          <div className='overflow-y-auto flex-1 pr-4'>
+            {Array.isArray(templates) &&
+              templates.length > 0 &&
+              templates.map((template, index) => {
+                // Extraer componentes de la plantilla
+                const headerComponent = template.components?.find(
+                  c => c.type === 'HEADER'
+                );
+                const bodyComponent = template.components?.find(
+                  c => c.type === 'BODY'
+                );
+                const footerComponent = template.components?.find(
+                  c => c.type === 'FOOTER'
+                );
 
-              return (
-                <WhatsTemplate
-                  key={template.id || index}
-                  name={template.name || ''}
-                  title={headerComponent?.text || ''}
-                  message={bodyComponent?.text || ''}
-                  footer={footerComponent?.text || ''}
-                  button={template.category || ''}
-                  setShowModal={setShowModal}
-                  onClick={() => setTempSelectedTemplate(template)}
-                  isSelected={
-                    tempSelectedTemplate &&
-                    tempSelectedTemplate.id === template.id
-                  }
-                  showButton={false}
-                />
-              );
-            })}
+                return (
+                  <WhatsTemplate
+                    key={template.id || index}
+                    name={template.name || ''}
+                    title={headerComponent?.text || ''}
+                    message={bodyComponent?.text || ''}
+                    footer={footerComponent?.text || ''}
+                    button={template.category || ''}
+                    setShowModal={setShowModal}
+                    onClick={() => setTempSelectedTemplate(template)}
+                    isSelected={
+                      tempSelectedTemplate &&
+                      tempSelectedTemplate.id === template.id
+                    }
+                    showButton={false}
+                  />
+                );
+              })}
+          </div>
 
           <DialogFooter>
             <Button
